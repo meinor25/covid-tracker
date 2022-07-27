@@ -14,13 +14,13 @@ export default {
   setup() {
     //Data
     const day = ref(moment().format("MMMM Do YYYY"));
-    let time = ref("");
+    const time = ref("");
 
     //Methods
     const timeManager = () => {
       setInterval(() => {
         let now = moment();
-        let format = now.format("h:mm:ss");
+        let format = now.format("LT");
         time.value = format;
       }, 1000);
     };

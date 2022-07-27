@@ -14,12 +14,22 @@
     <div class="container w-4/5 mx-auto">
       <div class="flex flex-col pt-7 align-center h-80">
         <h1 class="text-2xl font-bold text-center">
-          {{ selectedCountry.Country }}
+          {{ selectedCountry }}
         </h1>
         <Clock></Clock>
         <div class="" v-if="!loading">
           <!-- GLOBAL CASES  -->
-          <div class="clock" v-if="selectedCountry.length !== 'Global'"></div>
+          <Card
+            bgColor="bg-blue-300"
+            header="Summary"
+            :newCases="cases.NewConfirmed"
+            :totalCases="cases.TotalConfirmed"
+            class="mt-4 w-60"
+          />
+        </div>
+        <div v-else class="spinner">
+          <div class="cube1"></div>
+          <div class="cube2"></div>
         </div>
       </div>
 
@@ -35,12 +45,18 @@
           <option value="select" disabled selected hidden>
             --Select an option--
           </option>
-          <option :value="country" v-for="(country, i) in countries" :key="i">
+          <option
+            :value="country.Country"
+            v-for="(country, i) in countries"
+            :key="i"
+          >
             {{ country.Country }}
           </option>
         </select>
       </div>
+      <!-- END OF SELECT -->
     </div>
+    <!-- END OF CONTENT -->
   </div>
 </template>
 
@@ -49,6 +65,7 @@ import { computed } from "@vue/runtime-core";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import Clock from "./components/Clock.vue";
+import Card from "./components/Card.vue";
 
 export default {
   setup() {
@@ -58,22 +75,29 @@ export default {
     const countries = computed(() => store.state.countries);
     const selectedCountry = ref("Global");
     const loading = ref(false);
+    const cases = computed(() => store.state.cases);
     //Methods
     const getSelectedValue = () => {
-      console.log(selectedCountry.value);
+      // console.log(selectedCountry.value);
     };
     //Lifecycles
     onMounted(async () => {
+      loading.value = true;
+
       await store.dispatch("getCountries");
+      await store.dispatch("getGlobalCases");
+
+      loading.value = false;
     });
     return {
       countries,
       getSelectedValue,
       selectedCountry,
       loading,
+      cases,
     };
   },
-  components: { Clock },
+  components: { Clock, Card },
 };
 </script>
 

@@ -9,6 +9,7 @@ export default createStore({
   state: {
     countries: [],
     singleCountryInfo: [],
+    cases: {},
   },
   mutations: {
     fillCountries(state, payload) {
@@ -16,6 +17,9 @@ export default createStore({
     },
     fillContryInfo(state, payload) {
       state.singleCountryInfo = payload;
+    },
+    fillCases(state, payload) {
+      state.cases = payload;
     },
   },
   actions: {
@@ -28,7 +32,10 @@ export default createStore({
         console.log(error);
       }
     },
-
+    async getGlobalCases({ commit }) {
+      const { data } = await instance.get("/summary");
+      commit("fillCases", data.Global);
+    },
     async getCountryData({ commit }) {
       const data = await instance.get("/");
     },
