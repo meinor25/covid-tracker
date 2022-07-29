@@ -36,8 +36,9 @@ export default createStore({
       const { data } = await instance.get("/summary");
       commit("fillCases", data.Global);
     },
-    async getCountryData({ commit }) {
-      const data = await instance.get("/");
+    async getCountryData({ commit }, payload) {
+      const { data } = await instance.get(`country/${payload}`);
+      commit("fillCases", data[data.length - 1]);
     },
   },
 });

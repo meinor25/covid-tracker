@@ -13,18 +13,38 @@
     <!-- CONTENT -->
     <div class="container w-4/5 mx-auto">
       <div class="flex flex-col pt-7 align-center h-80">
-        <h1 class="text-2xl font-bold text-center">
+        <!-- TITLE -->
+        <h1
+          class="text-2xl font-bold text-center"
+          v-if="selectedCountry !== 'Global'"
+        >
+          {{ selectedCountry.Country }}
+        </h1>
+        <h1 v-else class="text-2xl font-bold text-center">
           {{ selectedCountry }}
         </h1>
+
+        <!-- CLOCK -->
         <Clock></Clock>
-        <div class="" v-if="!loading">
+        <div class="pt-5" v-if="!loading">
           <!-- GLOBAL CASES  -->
           <Card
             bgColor="bg-blue-300"
             header="Summary"
+            text1="New Cases: "
+            text2="Total cases: "
             :newCases="cases.NewConfirmed"
             :totalCases="cases.TotalConfirmed"
-            class="mt-4 w-60"
+            v-if="selectedCountry === 'Global'"
+          />
+          <Card
+            bgColor="bg-blue-300"
+            header="Summary"
+            text1="Active cases: "
+            text2="New Confirmed: "
+            :newCases="cases.Confirmed"
+            :totalCases="cases.Active"
+            v-else
           />
         </div>
         <div v-else class="spinner">
@@ -45,11 +65,7 @@
           <option value="select" disabled selected hidden>
             --Select an option--
           </option>
-          <option
-            :value="country.Country"
-            v-for="(country, i) in countries"
-            :key="i"
-          >
+          <option :value="country" v-for="(country, i) in countries" :key="i">
             {{ country.Country }}
           </option>
         </select>
@@ -77,16 +93,23 @@ export default {
     const loading = ref(false);
     const cases = computed(() => store.state.cases);
     //Methods
-    const getSelectedValue = () => {
-      // console.log(selectedCountry.value);
+    const getSelectedValue = async () => {
+      loading.value = true;
+
+      await store.dispatch("getCountryData", selectedCountry.value.Slug);
+      console.log(cases);
+
+      loading.value = false;
     };
     //Lifecycles
     onMounted(async () => {
+      //Set loading spinner
       loading.value = true;
 
       await store.dispatch("getCountries");
       await store.dispatch("getGlobalCases");
 
+      //disable loading spinner
       loading.value = false;
     });
     return {
